@@ -55,7 +55,9 @@ public class LocationSwitch {
 
 
     public void displayLocationSettingsRequest(final Activity activity) {
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(activity)
+        if(activity!=null){
+            try {
+    GoogleApiClient googleApiClient = new GoogleApiClient.Builder(activity)
                 .addApi(LocationServices.API).build();
         googleApiClient.connect();
 
@@ -71,6 +73,12 @@ public class LocationSwitch {
         final PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
         result.setResultCallback(new LocationResultCallback(activity));
+        }catch(Exception e) {
+
+            }
+}
+
+    
     }
 
 
@@ -92,18 +100,19 @@ public class LocationSwitch {
 
     public void isLocationEnabled(final Activity activity, final Callback successCallback,
                                   final Callback errorCallback) {
-
-        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
         boolean network_enabled = false;
+        if (activity!=null){
+            LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+            try {
+                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch(Exception ex) {}
 
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
+            try {
+                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch(Exception ex) {}
+        }
 
-        try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
 
         if(gps_enabled || network_enabled) {
             successCallback.invoke();
